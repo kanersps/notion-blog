@@ -63,6 +63,7 @@ export async function getAllPosts(allPosts, cursor, pretty_ids) {
         id: post.id,
         pretty_id,
         title: post.properties.Post.title[0].plain_text,
+        posted_at: post.properties.Created.date.start,
       });
     });
 

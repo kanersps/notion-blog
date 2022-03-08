@@ -5,12 +5,23 @@ import styles from "./Index.module.css";
 export default function Home({ posts }) {
   return (
     <div className={styles.container}>
+      <h1>Blog</h1>
+
       {posts.map((post) => {
         return (
-          <div key={post.id}>
+          <div className={styles.post} key={post.id}>
             <Link href={`/post/${post.pretty_id}`} passHref>
               {post.title}
             </Link>
+
+            <span>
+              {new Date(post.posted_at).toLocaleDateString(undefined, {
+                weekday: "long",
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              })}
+            </span>
           </div>
         );
       })}
