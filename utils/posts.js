@@ -6,7 +6,6 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const pretty_ids = {};
 const slugs = {};
 
 export function slugToId(slug) {
@@ -29,12 +28,6 @@ async function getAllBlocks(id, blocks, cursor) {
 export async function getPost(postId) {
   const page = await notion.pages.retrieve({ page_id: postId });
 
-  /*
-  const content = await notion.blocks.children.list({
-    block_id: page.,
-  });
-  */
-
   return {
     title: page.properties.Post.title[0].plain_text,
     blocks: await getAllBlocks(postId, [], undefined),
@@ -42,7 +35,7 @@ export async function getPost(postId) {
   };
 }
 
-export async function getAllPosts(allPosts, cursor) {
+export async function getAllPosts(allPosts, cursor, pretty_ids) {
   const posts = await notion.databases.query({
     database_id: "94a490f55d984b38beb1a2a5099b5f37",
     sorts: [{ property: "Created", direction: "descending" }],
@@ -74,7 +67,7 @@ export async function getAllPosts(allPosts, cursor) {
     });
 
     if (posts.has_more) {
-      return await getAllPosts(allPosts, posts.next_cursor);
+      return await getAllPosts(allPosts, posts.next_cursor, pretty_ids);
     } else {
       return allPosts;
     }

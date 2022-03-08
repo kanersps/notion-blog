@@ -50,7 +50,7 @@ function Post(props) {
 
 export async function getStaticProps({ params }) {
   // Required to fill slugs
-  await getAllPosts([], undefined);
+  await getAllPosts([], undefined, {});
 
   // Get post
   const post = await getPost(slugToId(params.id));
@@ -67,7 +67,7 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-  const posts = await getAllPosts([], undefined);
+  const posts = await getAllPosts([], undefined, {});
 
   const paths = posts.map((post) => ({
     params: { id: post.pretty_id },
