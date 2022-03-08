@@ -9,20 +9,20 @@ export default function Home({ posts }) {
 
       {posts.map((post) => {
         return (
-          <div className={styles.post} key={post.id}>
-            <Link href={`/post/${post.pretty_id}`} passHref>
-              {post.title}
-            </Link>
+          <Link key={post.id} href={`/post/${post.pretty_id}`} passHref>
+            <div className={styles.post}>
+              <span>{post.title}</span>
 
-            <span>
-              {new Date(post.posted_at).toLocaleDateString(undefined, {
-                weekday: "long",
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-              })}
-            </span>
-          </div>
+              <span>
+                {new Date(post.posted_at).toLocaleDateString(undefined, {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "numeric",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+          </Link>
         );
       })}
     </div>
