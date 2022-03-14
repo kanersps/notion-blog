@@ -25,6 +25,10 @@ async function getAllBlocks(id, blocks, cursor) {
   }
 }
 
+async function getFirstBlock(id) {
+  return await getAllBlocks(id, [], undefined);
+}
+
 export async function getPost(postId) {
   const page = await notion.pages.retrieve({ page_id: postId });
 
@@ -43,33 +47,66 @@ export async function getAllPosts(allPosts, cursor, pretty_ids) {
   });
 
   if (posts.results.length > 0) {
-    posts.results.forEach((post) => {
-      const title = post.properties.Post.title[0].plain_text;
+    await Promise.all(
+      posts.results.map(async (post) => {
+        const title = post.properties.Post.title[0].plain_text;
 
-      let pretty_id = title.replace(/ /g, "-");
-      pretty_id = pretty_id.toLowerCase();
+        let pretty_id = title.replace(/ /g, "-");
+        pretty_id = pretty_id.toLowerCase();
 
-      if (pretty_ids[pretty_id] !== undefined) {
-        pretty_ids[pretty_id]++;
+        if (pretty_ids[pretty_id] !== undefined) {
+          pretty_ids[pretty_id]++;
 
-        pretty_id += "-" + pretty_ids[pretty_id];
-      } else {
-        pretty_ids[pretty_id] = 0;
-      }
+          pretty_id += "-" + pretty_ids[pretty_id];
+        } else {
+          pretty_ids[pretty_id] = 0;
+        }
 
-      slugs[pretty_id] = post.id;
+        slugs[pretty_id] = post.id;
 
-      allPosts.push({
-        id: post.id,
-        pretty_id,
-        title: post.properties.Post.title[0].plain_text,
-        posted_at: post.properties.Created.date.start,
-      });
-    });
+        const firstBlock = (await getFirstBlock(post.id))[0];
+
+        let desc = "";
+
+        if (firstBlock && firstBlock.paragraph && firstBlock.paragraph.rich_text[0]) {
+          desc = firstBlock.paragraph.rich_text[0].text.content;
+        }
+
+        if (desc.length > 200) {
+          desc = desc.substring(0, 197);
+          desc += "...";
+        }
+
+        let cover = "";
+
+        if (post.cover) {
+          switch (post.cover.type) {
+            case "external":
+              cover = post.cover.external.url;
+              break;
+          }
+        }
+
+        console.log(cover);
+
+        allPosts.push({
+          id: post.id,
+          pretty_id,
+          title: post.properties.Post.title[0].plain_text,
+          posted_at: post.properties.Created.date.start,
+          description: desc,
+          cover: cover,
+        });
+      })
+    );
 
     if (posts.has_more) {
       return await getAllPosts(allPosts, posts.next_cursor, pretty_ids);
     } else {
+      allPosts = allPosts.sort((a, b) => {
+        return new Date(b.posted_at) - new Date(a.posted_at);
+      });
+
       return allPosts;
     }
   }
