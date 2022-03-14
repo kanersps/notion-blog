@@ -17,14 +17,16 @@ export default function Home({ posts }) {
           {posts.map((post) => {
             return (
               <Link key={post.id} href={`/post/${post.pretty_id}`} passHref>
-                <div>
-                  {post.cover && (
+                <div className="cursor-pointer bg-stone-900 rounded-xl flex flex-col justify-between">
+                  {post.cover ? (
                     <div className="w-full mb-0 align-middle">
-                      <Image className="align-middle" width={400} height={200} alt={""} objectFit="responsive" src={post.cover} />
+                      <Image className="align-middle" width={400} height={200} sizes="400px" alt={""} objectFit="responsive" src={post.cover} />
                     </div>
+                  ) : (
+                    <div></div>
                   )}
 
-                  <div className="cursor-pointer h-72 flex flex-col justify-between bg-stone-900 text-white rounded pl-4 pr-4 pt-2 pb-2 mb-1">
+                  <div className="flex h-72 flex-col justify-between text-white pl-4 pr-4 pt-2 pb-2 mb-1">
                     <div>
                       <div className="text-2xl text-center font-bold">{post.title}</div>
                       <div>{post.description}</div>
